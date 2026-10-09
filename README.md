@@ -29,12 +29,33 @@ MstarOscilloscope 是基于 MStarEthernetBridge DLL 的 Qt6 桌面应用，用�
 | CMake | 构建系统 |
 | MStarEthernetBridge DLL | 底层设备通信（以太网 AXI 总线） |
 
+## 依赖下载
+
+构建前需先下载 MStarEthernetBridge DLL（含头文件和链接库）：
+
+- 百度网盘：https://pan.baidu.com/s/1LkRXYsZrZuWL4JUcbq3mnw?pwd=1234 提取码: 1234
+
+下载后按以下结构放置（或自定义路径）：
+
+```
+MstarOscilloscope/
+├── dll/
+│   ├── include/          # 头文件：MstarEthBridge.h, MstarCollect.h
+│   └── lib/              # 链接库：MStarEthernetBridge.lib, MStarEthernetBridge.dll
+```
+
+> **注意**：MStarEthernetBridge DLL 是闭源商业组件，不包含在本开源仓库中。本项目通过动态链接调用 DLL，两者物理分离。
+
 ## 构建方法
 
 ```bash
 # 确保已安装 Qt6 和 MSVC 2022
 mkdir build && cd build
-cmake .. -G "Visual Studio 17 2022" -A x64
+
+# 默认查找 dll/include 和 dll/lib 目录
+# 如 DLL 在其他位置，通过参数指定：
+cmake .. -G "Visual Studio 17 2022" -A x64 -DDLL_INCLUDE_DIR="D:/path/to/dll/include" -DDLL_PROJECT_OUT="D:/path/to/dll/lib"
+
 cmake --build . --config Release
 ```
 

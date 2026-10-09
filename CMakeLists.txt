@@ -12,9 +12,10 @@ set(CMAKE_AUTOUIC ON)
 # Qt6
 find_package(Qt6 REQUIRED COMPONENTS Widgets PrintSupport)
 
-# DLL project directories
-set(DLL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../include)
-set(DLL_PROJECT_OUT ${CMAKE_CURRENT_SOURCE_DIR}/../x64/Debug)
+# DLL 路径配置（开源用户需指定 MStarEthernetBridge DLL 的位置）
+# 可通过 cmake -DDLL_INCLUDE_DIR=... -DDLL_PROJECT_OUT=... 覆盖
+set(DLL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dll/include" CACHE PATH "Path to DLL header files")
+set(DLL_PROJECT_OUT "${CMAKE_CURRENT_SOURCE_DIR}/dll/lib" CACHE PATH "Path to DLL library files")
 
 add_executable(MstarOscilloscope WIN32
     main.cpp
@@ -83,7 +84,6 @@ add_custom_command(TARGET MstarOscilloscope POST_BUILD
 find_program(WINDEPLOYQT_EXECUTABLE
     NAMES windeployqt6 windeployqt
     HINTS "${Qt6_DIR}/../../../bin"
-          "D:/Qt/6.7.3/msvc2022_64/bin"
 )
 
 if(WINDEPLOYQT_EXECUTABLE)

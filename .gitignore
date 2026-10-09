@@ -9,6 +9,9 @@ Release/
 out/
 cmake-build-*/
 
+# ---- DLL 依赖（闭源组件，用户自行下载） ----
+dll/
+
 # ---- CMake 用户文件（Qt Creator 生成） ----
 CMakeLists.txt.user
 CMakeCache.txt
