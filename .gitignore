@@ -1,0 +1,49 @@
+# ==========================================
+# MstarOscilloscope .gitignore
+# ==========================================
+
+# ---- 构建输出 ----
+build/
+Debug/
+Release/
+out/
+cmake-build-*/
+
+# ---- CMake 用户文件（Qt Creator 生成） ----
+CMakeLists.txt.user
+CMakeCache.txt
+cmake_install.cmake
+
+# ---- Visual Studio / IDE ----
+.vs/
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.vcxproj.user
+
+# ---- 编译产物 ----
+*.obj
+*.o
+*.pch
+*.pdb
+*.ilk
+*.exp
+
+# ---- 运行时数据文件（CSV 采集数据） ----
+*.csv
+
+# ---- Qt 部署 ----
+# deploy 后的 Qt DLL（由 windeployqt 生成）
+windeployqt_stamp
+
+# ---- 日志 / 临时文件 ----
+*.log
+*.tmp
+*.bak
+*~
+
+# ---- 操作系统 ----
+Thumbs.db
+.DS_Store
+desktop.ini

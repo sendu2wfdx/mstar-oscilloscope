@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/logo.png</file>
+        <file>image/MScollect_icon.png</file>
+        <file>image/MSOscilloscope_icon.png</file>
+    </qresource>
+</RCC>
