@@ -14,17 +14,18 @@
 #include <QDir>
 #include <QPushButton>
 #include "MstarEthBridge.h"
+#include "Translation.h"
 
 CollectParamDialog::CollectParamDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("采集参数设置"));
+    setWindowTitle(T("采集参数设置"));
     setModal(true);
 
     auto *mainLayout = new QVBoxLayout(this);
 
     // ---- 基本参数（两行布局） ----
-    auto *basicGroup = new QGroupBox(tr("基本参数"));
+    auto *basicGroup = new QGroupBox(T("基本参数"));
     auto *basicVLayout = new QVBoxLayout(basicGroup);
 
     // 第一行：采样频率 + 过采样
@@ -33,20 +34,20 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
     m_spinSampleFreq->setRange(1, 100000000);
     m_spinSampleFreq->setValue(1000000);
     m_spinSampleFreq->setSuffix(" Hz");
-    row1->addWidget(new QLabel(tr("采样频率:")));
+    row1->addWidget(new QLabel(T("采样频率:")));
     row1->addWidget(m_spinSampleFreq);
     row1->addSpacing(20);
-    row1->addWidget(new QLabel(tr("过采样:")));
+    row1->addWidget(new QLabel(T("过采样:")));
     m_comboOversample = new QComboBox;
-    m_comboOversample->addItem(tr("1倍（无过采样）"), COLLECT_OVERSAMPLE_1);
-    m_comboOversample->addItem(tr("2倍"),           COLLECT_OVERSAMPLE_2);
-    m_comboOversample->addItem(tr("4倍"),           COLLECT_OVERSAMPLE_4);
-    m_comboOversample->addItem(tr("8倍"),           COLLECT_OVERSAMPLE_8);
-    m_comboOversample->addItem(tr("16倍"),          COLLECT_OVERSAMPLE_16);
-    m_comboOversample->addItem(tr("32倍"),          COLLECT_OVERSAMPLE_32);
-    m_comboOversample->addItem(tr("64倍"),          COLLECT_OVERSAMPLE_64);
-    m_comboOversample->addItem(tr("128倍"),         COLLECT_OVERSAMPLE_128);
-    m_comboOversample->addItem(tr("256倍"),         COLLECT_OVERSAMPLE_256);
+    m_comboOversample->addItem(T("1倍（无过采样）"), COLLECT_OVERSAMPLE_1);
+    m_comboOversample->addItem(T("2倍"),           COLLECT_OVERSAMPLE_2);
+    m_comboOversample->addItem(T("4倍"),           COLLECT_OVERSAMPLE_4);
+    m_comboOversample->addItem(T("8倍"),           COLLECT_OVERSAMPLE_8);
+    m_comboOversample->addItem(T("16倍"),          COLLECT_OVERSAMPLE_16);
+    m_comboOversample->addItem(T("32倍"),          COLLECT_OVERSAMPLE_32);
+    m_comboOversample->addItem(T("64倍"),          COLLECT_OVERSAMPLE_64);
+    m_comboOversample->addItem(T("128倍"),         COLLECT_OVERSAMPLE_128);
+    m_comboOversample->addItem(T("256倍"),         COLLECT_OVERSAMPLE_256);
     m_comboOversample->setCurrentIndex(0);
     row1->addWidget(m_comboOversample);
     row1->addStretch();
@@ -54,7 +55,7 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
 
     // 第二行：设备缓存
     auto *row2 = new QHBoxLayout;
-    m_labelBufLen = new QLabel(tr("设备缓存:"));
+    m_labelBufLen = new QLabel(T("设备缓存:"));
     row2->addWidget(m_labelBufLen);
     m_comboBufLen = new QComboBox;
     row2->addWidget(m_comboBufLen);
@@ -63,7 +64,7 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
 
     // 第三行：预触发 + 滑块
     auto *row3 = new QHBoxLayout;
-    row3->addWidget(new QLabel(tr("预触发:")));
+    row3->addWidget(new QLabel(T("预触发:")));
     m_spinPreTrig = new QSpinBox;
     m_spinPreTrig->setRange(0, 0);
     m_spinPreTrig->setValue(0);
@@ -96,22 +97,22 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
     mainLayout->addWidget(basicGroup);
 
     // ---- 板间同步 ----
-    auto *syncGroup = new QGroupBox(tr("板间同步"));
+    auto *syncGroup = new QGroupBox(T("板间同步"));
     auto *syncVLayout = new QVBoxLayout(syncGroup);
 
     // 同步模式 + 触发信号 IO
     auto *row4 = new QHBoxLayout;
-    row4->addWidget(new QLabel(tr("同步模式:")));
+    row4->addWidget(new QLabel(T("同步模式:")));
     m_comboSyncMode = new QComboBox;
-    m_comboSyncMode->addItem(tr("无级联"),                     0);  // 输入输出都禁止
-    m_comboSyncMode->addItem(tr("主设备（CLK输出）"), 1);  // 输出使能，输入禁止
-    m_comboSyncMode->addItem(tr("从设备（CLK输入）"), 2);  // 输出禁止，输入使能
+    m_comboSyncMode->addItem(T("无级联"),                     0);  // 输入输出都禁止
+    m_comboSyncMode->addItem(T("主设备（CLK输出）"), 1);  // 输出使能，输入禁止
+    m_comboSyncMode->addItem(T("从设备（CLK输入）"), 2);  // 输出禁止，输入使能
     m_comboSyncMode->setCurrentIndex(0);
     row4->addWidget(m_comboSyncMode);
     row4->addSpacing(20);
-    row4->addWidget(new QLabel(tr("触发信号:")));
-    m_chkTrigOut = new QCheckBox(tr("输出"));
-    m_chkTrigIn  = new QCheckBox(tr("输入"));
+    row4->addWidget(new QLabel(T("触发信号:")));
+    m_chkTrigOut = new QCheckBox(T("输出"));
+    m_chkTrigIn  = new QCheckBox(T("输入"));
     row4->addWidget(m_chkTrigOut);
     row4->addWidget(m_chkTrigIn);
     row4->addStretch();
@@ -119,7 +120,7 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
 
     // 主设备 IP 地址（从设备时显示）
     auto *row5 = new QHBoxLayout;
-    m_labelMasterIp = new QLabel(tr("主设备IP:"));
+    m_labelMasterIp = new QLabel(T("主设备IP:"));
     row5->addWidget(m_labelMasterIp);
     m_editMasterIp = new QLineEdit;
     m_editMasterIp->setPlaceholderText("192.168.0.100");
@@ -141,27 +142,27 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
     mainLayout->addWidget(syncGroup);
 
     // ---- 设备发送速度 ----
-    auto *speedGroup = new QGroupBox(tr("设备发送速度"));
+    auto *speedGroup = new QGroupBox(T("设备发送速度"));
     auto *speedLayout = new QHBoxLayout(speedGroup);
-    speedLayout->addWidget(new QLabel(tr("包间隔:")));
+    speedLayout->addWidget(new QLabel(T("包间隔:")));
     m_spinFrameDelay = new QSpinBox;
     m_spinFrameDelay->setRange(0, 65535);
     m_spinFrameDelay->setValue(0);
     m_spinFrameDelay->setSuffix(" us");
-    m_spinFrameDelay->setToolTip(tr("数据包发送间隔时间（微秒），主动降低网口传输负载，可同一网口同时采集多台设备"));
+    m_spinFrameDelay->setToolTip(T("数据包发送间隔时间（微秒），主动降低网口传输负载，可同一网口同时采集多台设备"));
     speedLayout->addWidget(m_spinFrameDelay);
     speedLayout->addSpacing(10);
-    speedLayout->addWidget(new QLabel(tr("注: 1000M网速时，20us大约降一半速度")));
+    speedLayout->addWidget(new QLabel(T("注: 1000M网速时，20us大约降一半速度")));
     speedLayout->addStretch();
     mainLayout->addWidget(speedGroup);
 
     // ---- 实时采集 ----
-    auto *saveGroup = new QGroupBox(tr("实时采集"));
+    auto *saveGroup = new QGroupBox(T("实时采集"));
     auto *saveVLayout = new QVBoxLayout(saveGroup);
 
     // 第一行：主机缓存
     auto *hostBufRow = new QHBoxLayout;
-    m_labelHostBuf = new QLabel(tr("主机缓存:"));
+    m_labelHostBuf = new QLabel(T("主机缓存:"));
     hostBufRow->addWidget(m_labelHostBuf);
     m_comboHostBuf = new QComboBox;
     m_comboHostBuf->addItem("1s",   1);
@@ -179,22 +180,22 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
 
     // 第二行：实时保存
     auto *saveLayout = new QHBoxLayout;
-    m_chkSaveEnable = new QCheckBox(tr("保存使能"));
+    m_chkSaveEnable = new QCheckBox(T("保存使能"));
     saveLayout->addWidget(m_chkSaveEnable);
     saveLayout->addSpacing(10);
-    saveLayout->addWidget(new QLabel(tr("保存地址:")));
+    saveLayout->addWidget(new QLabel(T("保存地址:")));
     m_editSavePath = new QLineEdit;
-    m_editSavePath->setPlaceholderText(tr("选择保存目录"));
+    m_editSavePath->setPlaceholderText(T("选择保存目录"));
     m_editSavePath->setText(QDir::homePath());
     saveLayout->addWidget(m_editSavePath, 1);
-    auto *btnBrowse = new QPushButton(tr("浏览..."));
+    auto *btnBrowse = new QPushButton(T("浏览..."));
     connect(btnBrowse, &QPushButton::clicked, this, [this]() {
-        QString dir = QFileDialog::getExistingDirectory(this, tr("选择保存目录"), m_editSavePath->text());
+        QString dir = QFileDialog::getExistingDirectory(this, T("选择保存目录"), m_editSavePath->text());
         if (!dir.isEmpty()) m_editSavePath->setText(dir);
     });
     saveLayout->addWidget(btnBrowse);
     saveLayout->addSpacing(10);
-    saveLayout->addWidget(new QLabel(tr("文件前缀:")));
+    saveLayout->addWidget(new QLabel(T("文件前缀:")));
     m_editFilePrefix = new QLineEdit;
     m_editFilePrefix->setText("MCollectDat");
     m_editFilePrefix->setFixedWidth(100);
@@ -205,7 +206,7 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
     // ---- 触发设置（每通道独立，在通道列表中） ----
 
     // ---- 通道设置（使能 + 触发 + 偏移） ----
-    auto *chGroup = new QGroupBox(tr("通道设置"));
+    auto *chGroup = new QGroupBox(T("通道设置"));
     // 用 QScrollArea 包裹，通道多时可滚动
     auto *chScroll = new QScrollArea;
     chScroll->setWidgetResizable(true);
@@ -216,7 +217,7 @@ CollectParamDialog::CollectParamDialog(QWidget *parent)
     // 表头（居中 + 加粗）
     const char *headers[] = {"通道", "采集使能", "触发使能", "触发模式", "触发值(V)", "量程", "带宽", "偏移"};
     for (int col = 0; col < 8; ++col) {
-        auto *hdr = new QLabel(tr(headers[col]));
+        auto *hdr = new QLabel(T(headers[col]));
         hdr->setAlignment(Qt::AlignCenter);
         QFont font = hdr->font();
         font.setBold(true);
@@ -262,7 +263,7 @@ void CollectParamDialog::buildChannelTable(int nchannel, int nbits)
     // 通过遍历找到 QScrollArea 内的 container
     QWidget *chContainer = nullptr;
     for (auto *group : findChildren<QGroupBox*>()) {
-        if (group->title() == tr("通道设置")) {
+        if (group->title() == T("通道设置")) {
             auto *scroll = group->findChild<QScrollArea*>();
             if (scroll) chContainer = scroll->widget();
             break;
@@ -293,9 +294,9 @@ void CollectParamDialog::buildChannelTable(int nchannel, int nbits)
 
         // 触发模式（触发使能时可选：电平/上升沿/下降沿；禁止时默认连续采集）
         auto *comboTrig = new QComboBox;
-        comboTrig->addItem(tr("电平触发"),     TRIG_TYPE_LEVEL);
-        comboTrig->addItem(tr("上升沿触发"),   TRIG_TYPE_UP);
-        comboTrig->addItem(tr("下降沿触发"),   TRIG_TYPE_DOWN);
+        comboTrig->addItem(T("电平触发"),     TRIG_TYPE_LEVEL);
+        comboTrig->addItem(T("上升沿触发"),   TRIG_TYPE_UP);
+        comboTrig->addItem(T("下降沿触发"),   TRIG_TYPE_DOWN);
         comboTrig->setEnabled(false);  // 默认触发禁止，模式不可选
         chGrid->addWidget(comboTrig, row, 3);
         m_chTrigModes.append(comboTrig);
@@ -325,8 +326,8 @@ void CollectParamDialog::buildChannelTable(int nchannel, int nbits)
 
         // 输入带宽（高/低）
         auto *comboBw = new QComboBox;
-        comboBw->addItem(tr("高"), BANDWIDTH_HIGH);
-        comboBw->addItem(tr("低"), BANDWIDTH_LOW);
+        comboBw->addItem(T("高"), BANDWIDTH_HIGH);
+        comboBw->addItem(T("低"), BANDWIDTH_LOW);
         chGrid->addWidget(comboBw, row, 6);
         m_chBandwidthCombos.append(comboBw);
 
@@ -410,7 +411,7 @@ void CollectParamDialog::initFromDevice(MHANDLE hdev, const collectinforst &info
     // 先清除旧的通道控件
     QWidget *chContainer = nullptr;
     for (auto *group : findChildren<QGroupBox*>()) {
-        if (group->title() == tr("通道设置")) {
+        if (group->title() == T("通道设置")) {
             auto *scroll = group->findChild<QScrollArea*>();
             if (scroll) chContainer = scroll->widget();
             break;
@@ -436,19 +437,19 @@ void CollectParamDialog::initFromDevice(MHANDLE hdev, const collectinforst &info
         // 量程码 → 显示名称
         auto rangeName = [this](uint8_t code) -> QString {
             switch (code) {
-                case AD_AIN_RANGE_SPN2V5:  return tr("\u00b12.5V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SPN5V:   return tr("\u00b15V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SPN6V25: return tr("\u00b16.25V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SPN10V:  return tr("\u00b110V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SPN12V5: return tr("\u00b112.5V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SP5V:    return tr("0~5V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SP10V:   return tr("0~10V(\u5355\u7aef)");
-                case AD_AIN_RANGE_SP12V5:  return tr("0~12.5V(\u5355\u7aef)");
-                case AD_AIN_RANGE_D5V:     return tr("\u00b15V(\u5dee\u5206)");
-                case AD_AIN_RANGE_D10V:    return tr("\u00b110V(\u5dee\u5206)");
-                case AD_AIN_RANGE_D12V5:   return tr("\u00b112.5V(\u5dee\u5206)");
-                case AD_AIN_RANGE_D20V:    return tr("\u00b120V(\u5dee\u5206)");
-                case AD_AIN_RANGE_D25V:    return tr("\u00b125V(\u5dee\u5206)");
+                case AD_AIN_RANGE_SPN2V5:  return T("\u00b12.5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN5V:   return T("\u00b15V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN6V25: return T("\u00b16.25V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN10V:  return T("\u00b110V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN12V5: return T("\u00b112.5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SP5V:    return T("0~5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SP10V:   return T("0~10V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SP12V5:  return T("0~12.5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_D5V:     return T("\u00b15V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D10V:    return T("\u00b110V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D12V5:   return T("\u00b112.5V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D20V:    return T("\u00b120V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D25V:    return T("\u00b125V(\u5dee\u5206)");
                 default: return QString("0x%1").arg(code, 2, 16, QChar('0'));
             }
         };

@@ -9,17 +9,18 @@
 #include <QMessageBox>
 #include <QTimer>
 #include "MstarEthBridge.h"
+#include "Translation.h"
 
 ConnectDialog::ConnectDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Connect Device"));
+    setWindowTitle(T("Connect Device"));
     setMinimumWidth(380);
 
     auto *layout = new QVBoxLayout(this);
 
     // --- IP input ---
-    auto *ipGroup = new QGroupBox(tr("Device IP"));
+    auto *ipGroup = new QGroupBox(T("Device IP"));
     auto *ipLayout = new QHBoxLayout(ipGroup);
     m_editIp = new QLineEdit("192.168.0.100");
     ipLayout->addWidget(new QLabel("IP:"));
@@ -27,10 +28,10 @@ ConnectDialog::ConnectDialog(QWidget *parent)
     layout->addWidget(ipGroup);
 
     // --- Scan ---
-    auto *scanGroup = new QGroupBox(tr("Auto Scan"));
+    auto *scanGroup = new QGroupBox(T("Auto Scan"));
     auto *scanLayout = new QVBoxLayout(scanGroup);
     auto *btnLayout = new QHBoxLayout;
-    m_btnScan = new QPushButton(tr("Scan Devices"));
+    m_btnScan = new QPushButton(T("Scan Devices"));
     btnLayout->addWidget(m_btnScan);
     btnLayout->addStretch();
     scanLayout->addLayout(btnLayout);
@@ -42,8 +43,8 @@ ConnectDialog::ConnectDialog(QWidget *parent)
 
     // --- OK / Cancel ---
     auto *btnBox = new QHBoxLayout;
-    auto *btnOk = new QPushButton(tr("Connect"));
-    auto *btnCancel = new QPushButton(tr("Cancel"));
+    auto *btnOk = new QPushButton(T("Connect"));
+    auto *btnCancel = new QPushButton(T("Cancel"));
     btnBox->addStretch();
     btnBox->addWidget(btnOk);
     btnBox->addWidget(btnCancel);
@@ -79,7 +80,7 @@ void ConnectDialog::onScan()
         int count = get_udpclient_size();
 
         if (count <= 0) {
-            m_listDevices->addItem(tr("No device found"));
+            m_listDevices->addItem(T("No device found"));
             m_btnScan->setEnabled(true);
             return;
         }
@@ -100,7 +101,7 @@ void ConnectDialog::onScan()
         }
 
         if (m_listDevices->count() == 0) {
-            m_listDevices->addItem(tr("No new device found (all connected)"));
+            m_listDevices->addItem(T("No new device found (all connected)"));
         }
 
         m_btnScan->setEnabled(true);
@@ -119,13 +120,13 @@ void ConnectDialog::accept()
 {
     QString ip = m_editIp->text().trimmed();
     if (ip.isEmpty()) {
-        QMessageBox::warning(this, tr("Error"), tr("Please enter device IP address!"));
+        QMessageBox::warning(this, T("Error"), T("Please enter device IP address!"));
         return;
     }
     // 检查是否已连接
     if (m_existingDevices.contains(ip)) {
-        QMessageBox::warning(this, tr("提示"),
-            tr("设备 %1 已连接，请勿重复添加").arg(ip));
+        QMessageBox::warning(this, T("提示"),
+            T("设备 %1 已连接，请勿重复添加").arg(ip));
         return;
     }
     QDialog::accept();

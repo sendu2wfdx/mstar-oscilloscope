@@ -32,6 +32,7 @@ private slots:
     void onDeviceInfo();
     void onAbout();
     void onDllHelp();
+    void onToggleLanguage();
 
 private:
     void removePanel(int index);  // 移除指定索引的 panel（含级联断从）
@@ -45,6 +46,7 @@ private:
     QPushButton *m_btnOpenFile;
     QPushButton *m_btnAbout;
     QPushButton *m_btnDllHelp;
+    QPushButton *m_btnLang;
     QListWidget *m_deviceList;
     QStackedWidget *m_stack;
     QPushButton *m_btnToggleList;

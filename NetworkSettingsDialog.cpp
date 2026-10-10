@@ -8,21 +8,22 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QDialogButtonBox>
+#include "Translation.h"
 
 NetworkSettingsDialog::NetworkSettingsDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("网络设置"));
+    setWindowTitle(T("网络设置"));
     setFixedSize(360, 180);
 
     m_editMac = new QLineEdit;
     m_editIp = new QLineEdit;
 
     auto *formLayout = new QFormLayout;
-    formLayout->addRow(tr("MAC 地址:"), m_editMac);
-    formLayout->addRow(tr("IP 地址:"), m_editIp);
+    formLayout->addRow(T("MAC 地址:"), m_editMac);
+    formLayout->addRow(T("IP 地址:"), m_editIp);
 
-    auto *warnLabel = new QLabel(tr("注意：MAC 地址在网络中是唯一的标识，修改后若与其他设备重复将导致通信异常，请谨慎操作。"));
+    auto *warnLabel = new QLabel(T("注意：MAC 地址在网络中是唯一的标识，修改后若与其他设备重复将导致通信异常，请谨慎操作。"));
     warnLabel->setStyleSheet("color: red;");
     warnLabel->setWordWrap(true);
 

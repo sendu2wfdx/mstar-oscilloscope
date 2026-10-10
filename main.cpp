@@ -3,8 +3,6 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QTranslator>
-#include <QLocale>
 #include <windows.h>
 #include "MainWindow.h"
 
@@ -22,16 +20,6 @@ int main(int argc, char *argv[])
     }
 
     QApplication app(argc, argv);
-
-    // 加载翻译文件（根据系统语言自动选择中文/英文）
-    QTranslator translator;
-    const QString locale = QLocale::system().name();  // e.g. "zh_CN", "en_US"
-    if (translator.load("mstar_" + locale, ":/i18n")) {
-        app.installTranslator(&translator);
-    } else if (translator.load("mstar_en", ":/i18n")) {
-        // 回退到英文
-        app.installTranslator(&translator);
-    }
 
     MainWindow w;
     w.show();

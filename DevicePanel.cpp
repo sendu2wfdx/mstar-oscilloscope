@@ -17,6 +17,7 @@
 #include <QDoubleSpinBox>
 #include <cstring>
 #include <memory>
+#include "Translation.h"
 
 DevicePanel::DevicePanel(const QString &ip, MHANDLE hdev,
                          collectinforst info, int netSpeedMbps,
@@ -43,10 +44,10 @@ void DevicePanel::initUI()
     // --- 采集控制行 ---
     auto *collectGroup = new QGroupBox("Collect");
     auto *collectLayout = new QHBoxLayout(collectGroup);
-    m_btnInstant = new QPushButton(tr("瞬时采集"));
-    m_btnSingleTrig = new QPushButton(tr("单次触发"));
-    m_btnMultiTrig = new QPushButton(tr("连续触发"));
-    m_btnContinuous = new QPushButton(tr("连续采集"));
+    m_btnInstant = new QPushButton(T("瞬时采集"));
+    m_btnSingleTrig = new QPushButton(T("单次触发"));
+    m_btnMultiTrig = new QPushButton(T("连续触发"));
+    m_btnContinuous = new QPushButton(T("连续采集"));
     m_btnStop = new QPushButton("Stop");
     m_btnStop->setEnabled(false);
     collectLayout->addWidget(m_btnInstant);
@@ -54,16 +55,16 @@ void DevicePanel::initUI()
     collectLayout->addWidget(m_btnMultiTrig);
     collectLayout->addWidget(m_btnContinuous);
     collectLayout->addWidget(m_btnStop);
-    m_btnParams = new QPushButton(tr("参数设置"));
+    m_btnParams = new QPushButton(T("参数设置"));
     collectLayout->addWidget(m_btnParams);
-    m_btnSaveData = new QPushButton(tr("保存数据"));
+    m_btnSaveData = new QPushButton(T("保存数据"));
     m_btnSaveData->setEnabled(false);
     collectLayout->addWidget(m_btnSaveData);
     mainLayout->addWidget(collectGroup);
 
     // --- Info labels ---
     m_labelDevInfo = new QLabel;
-    m_labelStatus = new QLabel(tr("Ready"));
+    m_labelStatus = new QLabel(T("Ready"));
     auto *infoLayout = new QHBoxLayout;
     infoLayout->addWidget(m_labelDevInfo);
     infoLayout->addStretch();
@@ -83,8 +84,8 @@ void DevicePanel::initUI()
     m_plot->yAxis->setTickLabelColor(Qt::lightGray);
     m_plot->xAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
     m_plot->yAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
-    m_plot->xAxis->setLabel(tr("Time (s)"));
-    m_plot->yAxis->setLabel(tr("Voltage (V)"));
+    m_plot->xAxis->setLabel(T("Time (s)"));
+    m_plot->yAxis->setLabel(T("Voltage (V)"));
     m_plot->xAxis->setLabelColor(Qt::lightGray);
     m_plot->yAxis->setLabelColor(Qt::lightGray);
     m_plot->legend->setVisible(false);
@@ -109,19 +110,19 @@ void DevicePanel::initUI()
     m_windowIndicator = new WindowIndicator;
     m_indicatorChCombo = new QComboBox;
     m_indicatorChCombo->setFixedWidth(60);
-    m_indicatorChCombo->setToolTip(tr("指示器显示通道"));
+    m_indicatorChCombo->setToolTip(T("指示器显示通道"));
     auto *indicatorLayout = new QHBoxLayout;
     indicatorLayout->setContentsMargins(0, 0, 0, 0);
     indicatorLayout->addWidget(m_indicatorChCombo);
     indicatorLayout->addWidget(m_windowIndicator, 1);
 
-    auto *waveGroup = new QGroupBox(tr("波形显示"));
+    auto *waveGroup = new QGroupBox(T("波形显示"));
     auto *waveVLayout = new QVBoxLayout(waveGroup);
     waveVLayout->addLayout(indicatorLayout);
     waveVLayout->addWidget(m_plot, 1);
 
     // 显示使能
-    auto *chGroup = new QGroupBox(tr("显示使能"));
+    auto *chGroup = new QGroupBox(T("显示使能"));
     m_chLayout = new QVBoxLayout(chGroup);
     m_chLayout->addStretch();
 
@@ -207,7 +208,7 @@ void DevicePanel::initDevice()
         spinOffset->setSingleStep(0.1);
         spinOffset->setValue(0.0);
         spinOffset->setFixedWidth(80);
-        spinOffset->setToolTip(tr("CH%1 波形偏移 (V)").arg(ch));
+        spinOffset->setToolTip(T("CH%1 波形偏移 (V)").arg(ch));
         connect(spinOffset, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this, ch](double value) {
             m_chOffsets[ch] = value;
@@ -259,7 +260,7 @@ void DevicePanel::initDevice()
 
     // 注意：loadDeviceProfile() 在 MainWindow 设置 MAC 后调用
 
-    m_labelStatus->setText(tr("状态：空闲（%1CH %2bit %3Msps）")
+    m_labelStatus->setText(T("状态：空闲（%1CH %2bit %3Msps）")
         .arg(m_collectInfo.nchannel)
         .arg(m_collectInfo.nbits)
         .arg(m_collectInfo.samplefreq_max / 1000000.0, 0, 'f', 2));
@@ -349,15 +350,15 @@ void DevicePanel::onContinuousCollect()
 
     // 检查主机缓存是否已配置
     if (m_hostBufSamples <= 0) {
-        QMessageBox::warning(this, tr("提示"),
-            tr("请先打开参数设置对话框配置主机缓存大小。"));
+        QMessageBox::warning(this, T("提示"),
+            T("请先打开参数设置对话框配置主机缓存大小。"));
         return;
     }
 
     QMessageBox msgBox(this);
-    msgBox.setWindowTitle(tr("连续采集"));
-    msgBox.setText(tr("确认开始连续采集？"));
-    QCheckBox chk(tr("同时保存数据到文件"));
+    msgBox.setWindowTitle(T("连续采集"));
+    msgBox.setText(T("确认开始连续采集？"));
+    QCheckBox chk(T("同时保存数据到文件"));
     chk.setChecked(m_saveEnabled);
     msgBox.setCheckBox(&chk);
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
@@ -384,8 +385,8 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
         if (m_netSpeedMbps > 0) {
             int maxDataRate = m_netSpeedMbps * 25000;
             if (dataRate > maxDataRate) {
-                QMessageBox::warning(this, tr("带宽超限"),
-                    tr("数据速率 %1 MB/s 超过网口有效带宽 %2 MB/s（40%利用率）。\n"
+                QMessageBox::warning(this, T("带宽超限"),
+                    T("数据速率 %1 MB/s 超过网口有效带宽 %2 MB/s（40%利用率）。\n"
                        "请降低采样率或通道数。")
                     .arg(dataRate / 1000000.0, 0, 'f', 2)
                     .arg(maxDataRate / 1000000.0, 0, 'f', 2));
@@ -423,7 +424,7 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
     if (prebuflen > maxPreSamples) prebuflen = maxPreSamples;
     int ret = collect_start(m_hdev, 0, buflen, prebuflen);
     if (ret <= 0) {
-        QMessageBox::warning(this, tr("错误"), tr("Collect start failed!"));
+        QMessageBox::warning(this, T("错误"), T("Collect start failed!"));
         return;
     }
 
@@ -451,8 +452,8 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
     m_btnContinuous->setEnabled(false);
     m_btnStop->setEnabled(m_collectMode != 0);
 
-    QString modeName[] = {tr("瞬时采集"), tr("单次触发"), tr("连续触发"), tr("连续采集")};
-    m_labelStatus->setText(tr("状态：%1 中...").arg(modeName[m_collectMode]));
+    QString modeName[] = {T("瞬时采集"), T("单次触发"), T("连续触发"), T("连续采集")};
+    m_labelStatus->setText(T("状态：%1 中...").arg(modeName[m_collectMode]));
 
     if (m_collectMode == 3) {
         {
@@ -469,8 +470,8 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
                     enabledChs.append(ch);
             m_fileWriter = new DataFileWriter();
             m_fileWriter->setWriteSpeedCallback([this]() {
-                QMessageBox::warning(this, tr("保存速度不足"),
-                    tr("磁盘写入速度跟不上采集速度，数据正在丢失。\n"
+                QMessageBox::warning(this, T("保存速度不足"),
+                    T("磁盘写入速度跟不上采集速度，数据正在丢失。\n"
                        "已保存的数据仍然有效。\n"
                        "建议降低采样率或通道数后重试。"));
                 if (m_fileWriter) {
@@ -479,7 +480,7 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
                     m_fileWriter = nullptr;
                 }
                 m_saveEnabled = false;
-                m_labelStatus->setText(tr("状态：采集继续（已放弃保存）"));
+                m_labelStatus->setText(T("状态：采集继续（已放弃保存）"));
             });
             m_fileWriter->start(m_savePath, m_filePrefix, m_sampleFreq,
                                 enabledChs.size(), enabledChs,
@@ -579,7 +580,7 @@ thread_exit:
                 m_collecting = false;
             }
             QMetaObject::invokeMethod(this, [this]() {
-                m_labelStatus->setText(tr("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
+                m_labelStatus->setText(T("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
                 updateUI();
             }, Qt::QueuedConnection);
         });
@@ -607,7 +608,7 @@ thread_exit:
                     break;
                 }
                 QMetaObject::invokeMethod(m_labelStatus, "setText", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("状态：正在数据传输")));
+                                          Q_ARG(QString, T("状态：正在数据传输")));
                 auto rawbuf = std::make_unique<uint8_t[]>(buflen);
                 int ret = axifull_read(m_hdev, 0, rawbuf.get(), buflen);
                 if (ret <= 0) {
@@ -656,7 +657,7 @@ thread_exit:
             }
             QMetaObject::invokeMethod(this, [this]() {
                 if (!m_collecting) {
-                    m_labelStatus->setText(tr("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
+                    m_labelStatus->setText(T("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
                     updateUI();
                 }
             }, Qt::QueuedConnection);
@@ -672,14 +673,14 @@ void DevicePanel::onPlotReady()
         if (m_plotNumSamples == -1) {
             m_trigLine->setVisible(false);
             m_plot->replot();
-            m_labelStatus->setText(tr("状态：空闲（DMA 超时）"));
+            m_labelStatus->setText(T("状态：空闲（DMA 超时）"));
             updateUI();
             return;
         }
         if (m_plotNumSamples == -2) {
             m_trigLine->setVisible(false);
             m_plot->replot();
-            m_labelStatus->setText(tr("状态：空闲（读取失败）"));
+            m_labelStatus->setText(T("状态：空闲（读取失败）"));
             updateUI();
             return;
         }
@@ -701,7 +702,7 @@ void DevicePanel::onPlotReady()
         stillCollecting = m_collecting;
     }
     if (!stillCollecting) {
-        m_labelStatus->setText(tr("状态：空闲（%1 采样点）").arg(numSamples));
+        m_labelStatus->setText(T("状态：空闲（%1 采样点）").arg(numSamples));
         updateUI();
         if (m_saveEnabled && m_collectMode == 3) autoSaveData();
     }
@@ -936,8 +937,8 @@ void DevicePanel::onSaveData()
     if (m_ringBuffers.empty() || m_ringBuffers[0].totalWritten <= 0) return;
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
     QString defaultName = QString("%1_%2.csv").arg(m_filePrefix).arg(timestamp);
-    QString filePath = QFileDialog::getSaveFileName(this, tr("保存采集数据"),
-        QDir::homePath() + "/" + defaultName, tr("CSV 文件 (*.csv)"));
+    QString filePath = QFileDialog::getSaveFileName(this, T("保存采集数据"),
+        QDir::homePath() + "/" + defaultName, T("CSV 文件 (*.csv)"));
     if (filePath.isEmpty()) return;
 
     int chnum = 0;
@@ -969,7 +970,7 @@ void DevicePanel::onSaveData()
     }
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("错误"), tr("无法创建文件: %1").arg(filePath));
+        QMessageBox::warning(this, T("错误"), T("无法创建文件: %1").arg(filePath));
         return;
     }
     QTextStream out(&file);
@@ -996,7 +997,7 @@ void DevicePanel::onSaveData()
         out << "\n";
     }
     file.close();
-    appendLog(tr("数据已保存: %1 (%2 采样点)").arg(filePath).arg(totalSamples));
+    appendLog(T("数据已保存: %1 (%2 采样点)").arg(filePath).arg(totalSamples));
 }
 
 void DevicePanel::autoSaveData()
@@ -1035,7 +1036,7 @@ void DevicePanel::autoSaveData()
     }
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        appendLog(tr("自动保存失败: 无法创建文件 %1").arg(filePath));
+        appendLog(T("自动保存失败: 无法创建文件 %1").arg(filePath));
         m_saveEnabled = false;
         return;
     }
@@ -1064,14 +1065,14 @@ void DevicePanel::autoSaveData()
     }
     file.close();
     m_saveEnabled = false;
-    appendLog(tr("数据已自动保存: %1 (%2 采样点)").arg(filePath).arg(totalSamples));
+    appendLog(T("数据已自动保存: %1 (%2 采样点)").arg(filePath).arg(totalSamples));
 }
 
 void DevicePanel::onParamSettings()
 {
     if (!m_paramDialog || !m_hdev) return;
     if (m_collecting) {
-        QMessageBox::warning(this, tr("提示"), tr("采集进行中，无法设置参数。请先停止采集。"));
+        QMessageBox::warning(this, T("提示"), T("采集进行中，无法设置参数。请先停止采集。"));
         return;
     }
     m_paramDialog->setSampleFreq(m_sampleFreq);

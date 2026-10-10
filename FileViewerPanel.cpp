@@ -14,6 +14,7 @@
 #include <QComboBox>
 #include <cmath>
 #include <algorithm>
+#include "Translation.h"
 
 FileViewerPanel::FileViewerPanel(const QString &filePath, QWidget *parent)
     : QWidget(parent), m_filePath(filePath)
@@ -34,8 +35,8 @@ void FileViewerPanel::initUI()
 
     // --- 文件信息行 ---
     auto *infoLayout = new QHBoxLayout;
-    m_labelFileInfo = new QLabel(tr("文件: ") + m_fileName);
-    m_labelSampleRate = new QLabel(tr("采样率: --"));
+    m_labelFileInfo = new QLabel(T("文件: ") + m_fileName);
+    m_labelSampleRate = new QLabel(T("采样率: --"));
     infoLayout->addWidget(m_labelFileInfo);
     infoLayout->addStretch();
     infoLayout->addWidget(m_labelSampleRate);
@@ -54,8 +55,8 @@ void FileViewerPanel::initUI()
     m_plot->yAxis->setTickLabelColor(Qt::lightGray);
     m_plot->xAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
     m_plot->yAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
-    m_plot->xAxis->setLabel(tr("Time (s)"));
-    m_plot->yAxis->setLabel(tr("Voltage (V)"));
+    m_plot->xAxis->setLabel(T("Time (s)"));
+    m_plot->yAxis->setLabel(T("Voltage (V)"));
     m_plot->xAxis->setLabelColor(Qt::lightGray);
     m_plot->yAxis->setLabelColor(Qt::lightGray);
     m_plot->legend->setVisible(false);
@@ -80,19 +81,19 @@ void FileViewerPanel::initUI()
     m_windowIndicator = new WindowIndicator;
     m_indicatorChCombo = new QComboBox;
     m_indicatorChCombo->setFixedWidth(60);
-    m_indicatorChCombo->setToolTip(tr("指示器显示通道"));
+    m_indicatorChCombo->setToolTip(T("指示器显示通道"));
     auto *indicatorLayout = new QHBoxLayout;
     indicatorLayout->setContentsMargins(0, 0, 0, 0);
     indicatorLayout->addWidget(m_indicatorChCombo);
     indicatorLayout->addWidget(m_windowIndicator, 1);
 
-    auto *waveGroup = new QGroupBox(tr("波形显示"));
+    auto *waveGroup = new QGroupBox(T("波形显示"));
     auto *waveVLayout = new QVBoxLayout(waveGroup);
     waveVLayout->addLayout(indicatorLayout);
     waveVLayout->addWidget(m_plot, 1);
 
     // 显示使能
-    auto *chGroup = new QGroupBox(tr("显示使能"));
+    auto *chGroup = new QGroupBox(T("显示使能"));
     m_chLayout = new QVBoxLayout(chGroup);
     m_chLayout->addStretch();
 
@@ -107,7 +108,7 @@ bool FileViewerPanel::loadCsvFile(const QString &filePath)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        m_labelFileInfo->setText(tr("错误: 无法打开文件"));
+        m_labelFileInfo->setText(T("错误: 无法打开文件"));
         return false;
     }
 
@@ -219,12 +220,12 @@ bool FileViewerPanel::loadCsvFile(const QString &filePath)
 
     // 检查是否成功加载数据
     if (m_channelCount <= 0 || m_channelData.isEmpty()) {
-        m_labelFileInfo->setText(tr("错误: 文件中没有有效数据"));
+        m_labelFileInfo->setText(T("错误: 文件中没有有效数据"));
         return false;
     }
 
     // 更新 UI
-    m_labelSampleRate->setText(tr("采样率: %1 Hz").arg(m_sampleRate, 0, 'f', 0));
+    m_labelSampleRate->setText(T("采样率: %1 Hz").arg(m_sampleRate, 0, 'f', 0));
 
     // 初始化通道偏移
     m_chOffsets.resize(m_channelCount, 0.0);
@@ -282,7 +283,7 @@ bool FileViewerPanel::loadCsvFile(const QString &filePath)
         spinOffset->setSingleStep(0.1);
         spinOffset->setValue(0.0);
         spinOffset->setFixedWidth(80);
-        spinOffset->setToolTip(tr("CH%1 波形偏移 (V)").arg(ch));
+        spinOffset->setToolTip(T("CH%1 波形偏移 (V)").arg(ch));
         connect(spinOffset, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, [this, ch](double value) {
             m_chOffsets[ch] = value;

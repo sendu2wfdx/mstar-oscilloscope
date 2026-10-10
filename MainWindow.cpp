@@ -25,6 +25,7 @@
 #include <QTemporaryFile>
 #include <QTextDocument>
 #include <algorithm>
+#include "Translation.h"
 
 // 前向声明
 static QString markdownToHtml(const QString &md);
@@ -42,19 +43,26 @@ MainWindow::MainWindow(QWidget *parent)
     auto *topLayout = new QHBoxLayout(topWidget);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_btnAddDevice = new QPushButton(style()->standardIcon(QStyle::SP_DialogApplyButton), tr("添加设备"));
-    m_btnDisconnect = new QPushButton(style()->standardIcon(QStyle::SP_DialogCloseButton), tr("断开连接"));
+    m_btnAddDevice = new QPushButton(style()->standardIcon(QStyle::SP_DialogApplyButton), T("添加设备"));
+    m_btnDisconnect = new QPushButton(style()->standardIcon(QStyle::SP_DialogCloseButton), T("断开连接"));
     m_btnDisconnect->setEnabled(false);
     topLayout->addWidget(m_btnAddDevice);
     topLayout->addWidget(m_btnDisconnect);
     topLayout->addSpacing(20);
 
-    m_btnOpenFile = new QPushButton(style()->standardIcon(QStyle::SP_DialogOpenButton), tr("打开数据文件"));
+    m_btnOpenFile = new QPushButton(style()->standardIcon(QStyle::SP_DialogOpenButton), T("打开数据文件"));
     topLayout->addWidget(m_btnOpenFile);
-    m_btnAbout = new QPushButton(style()->standardIcon(QStyle::SP_DialogHelpButton), tr("软件信息"));
+    m_btnAbout = new QPushButton(style()->standardIcon(QStyle::SP_DialogHelpButton), T("软件信息"));
     topLayout->addWidget(m_btnAbout);
-    m_btnDllHelp = new QPushButton(style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("DLL接口帮助"));
+    m_btnDllHelp = new QPushButton(style()->standardIcon(QStyle::SP_FileDialogDetailedView), T("DLL接口帮助"));
     topLayout->addWidget(m_btnDllHelp);
+    topLayout->addSpacing(20);
+
+    // 语言切换按钮
+    m_btnLang = new QPushButton(Translation::instance().isEnglish() ? "中文" : "EN");
+    m_btnLang->setToolTip(T("切换语言 / Switch Language"));
+    m_btnLang->setFixedWidth(40);
+    topLayout->addWidget(m_btnLang);
     topLayout->addStretch();
 
     // --- 中部区域: 设备列表(大图标) + 折叠按钮 + 设备面板栈 ---
@@ -73,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_btnToggleList = new QPushButton("\xe2\x97\x80");  // ◀ 左箭头
     m_btnToggleList->setFixedSize(20, 60);
-    m_btnToggleList->setToolTip(tr("隐藏/显示设备列表"));
+    m_btnToggleList->setToolTip(T("隐藏/显示设备列表"));
 
     m_stack = new QStackedWidget;
 
@@ -99,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_btnOpenFile, &QPushButton::clicked, this, &MainWindow::onOpenFile);
     connect(m_btnAbout, &QPushButton::clicked, this, &MainWindow::onAbout);
     connect(m_btnDllHelp, &QPushButton::clicked, this, &MainWindow::onDllHelp);
+    connect(m_btnLang, &QPushButton::clicked, this, &MainWindow::onToggleLanguage);
     connect(m_deviceList, &QListWidget::itemClicked, this, &MainWindow::onDeviceListClicked);
     connect(m_deviceList, &QListWidget::customContextMenuRequested, this, &MainWindow::onDeviceListContextMenu);
     connect(m_btnToggleList, &QPushButton::clicked, this, &MainWindow::onToggleDeviceList);
@@ -138,13 +147,13 @@ void MainWindow::onAddDevice()
     std::string ipStr = ip.toStdString();
     int ret = mstar_ethbridge_open(ipStr.c_str());
     if (ret <= 0) {
-        QMessageBox::warning(this, tr("错误"), tr("Open bridge failed!"));
+        QMessageBox::warning(this, T("错误"), T("Open bridge failed!"));
         return;
     }
 
     MHANDLE hdev = get_device_ip(ipStr.c_str());
     if (!hdev) {
-        QMessageBox::warning(this, tr("错误"), tr("No device found!"));
+        QMessageBox::warning(this, T("错误"), T("No device found!"));
         return;
     }
 
@@ -154,7 +163,7 @@ void MainWindow::onAddDevice()
 
     int ret2 = collect_device_init(hdev);
     if (ret2 <= 0) {
-        QMessageBox::warning(this, tr("错误"), tr("Device init failed!"));
+        QMessageBox::warning(this, T("错误"), T("Device init failed!"));
         device_handle_release(hdev);
         return;
     }
@@ -162,8 +171,8 @@ void MainWindow::onAddDevice()
     // 验证设备签名
     bool signatureValid = verify(hdev);
     if (!signatureValid) {
-        QMessageBox::warning(this, tr("设备签名验证失败"),
-            tr("设备未通过签名验证，剩余可用时间 3 小时。\n"
+        QMessageBox::warning(this, T("设备签名验证失败"),
+            T("设备未通过签名验证，剩余可用时间 3 小时。\n"
                "3 小时后设备将不执行任何总线读写命令（网络通信仍正常）。\n\n"
                "请联系杭州幻智星科技有限公司申请合法签名。\n"
                "邮箱：yupc123@qq.com\n"
@@ -173,7 +182,7 @@ void MainWindow::onAddDevice()
     collectinforst info;
     ret2 = get_collect_information(hdev, &info);
     if (ret2 <= 0) {
-        QMessageBox::warning(this, tr("错误"), tr("Get collect info failed!"));
+        QMessageBox::warning(this, T("错误"), T("Get collect info failed!"));
         device_handle_release(hdev);
         return;
     }
@@ -199,15 +208,15 @@ void MainWindow::onAddDevice()
     // 添加到设备列表（大图标模式）
     auto *listItem = new QListWidgetItem;
     QString displayName = panel->deviceModel();
-    if (!signatureValid) displayName += tr("\n(未验证)");
+    if (!signatureValid) displayName += T("\n(未验证)");
     listItem->setText(displayName);
     listItem->setIcon(QIcon(":/image/MScollect_icon.png"));
-    listItem->setToolTip(tr("型号: %1\nIP: %2\nMAC: %3\n主/从: %4\n签名: %5")
+    listItem->setToolTip(T("型号: %1\nIP: %2\nMAC: %3\n主/从: %4\n签名: %5")
         .arg(panel->deviceModel())
         .arg(devinfo.ip)
         .arg(devinfo.mac)
-        .arg(panel->masterIp().isEmpty() ? tr("主设备") : tr("从设备"))
-        .arg(signatureValid ? tr("已验证") : tr("未验证")));
+        .arg(panel->masterIp().isEmpty() ? T("主设备") : T("从设备"))
+        .arg(signatureValid ? T("已验证") : T("未验证")));
     listItem->setData(Qt::UserRole, stackIdx);
     m_deviceList->addItem(listItem);
 
@@ -332,26 +341,26 @@ void MainWindow::onDeviceListContextMenu(const QPoint &pos)
     
     if (devPanel) {
         // 真实设备的完整菜单
-        menu.addAction(tr("瞬时采集"), devPanel, &DevicePanel::onInstantCollect);
-        QAction *actSingle = menu.addAction(tr("单次触发"), devPanel, &DevicePanel::onSingleTriggerCollect);
-        QAction *actMulti  = menu.addAction(tr("连续触发"), devPanel, &DevicePanel::onMultiTriggerCollect);
+        menu.addAction(T("瞬时采集"), devPanel, &DevicePanel::onInstantCollect);
+        QAction *actSingle = menu.addAction(T("单次触发"), devPanel, &DevicePanel::onSingleTriggerCollect);
+        QAction *actMulti  = menu.addAction(T("连续触发"), devPanel, &DevicePanel::onMultiTriggerCollect);
         bool hasTrig = devPanel->hasTrigCapability();
         actSingle->setEnabled(hasTrig);
         actMulti->setEnabled(hasTrig);
-        menu.addAction(tr("连续采集"), devPanel, &DevicePanel::onContinuousCollect);
-        QAction *actStop = menu.addAction(tr("停止"), devPanel, &DevicePanel::onStopCollect);
+        menu.addAction(T("连续采集"), devPanel, &DevicePanel::onContinuousCollect);
+        QAction *actStop = menu.addAction(T("停止"), devPanel, &DevicePanel::onStopCollect);
         actStop->setEnabled(devPanel->isCollecting());
         menu.addSeparator();
-        menu.addAction(tr("保存数据"), devPanel, &DevicePanel::onSaveData);
+        menu.addAction(T("保存数据"), devPanel, &DevicePanel::onSaveData);
         menu.addSeparator();
-        menu.addAction(tr("参数设置"), devPanel, &DevicePanel::onParamSettings);
-        menu.addAction(tr("网络设置"), this, &MainWindow::onNetworkSettings);
-        menu.addAction(tr("设备详情"), this, &MainWindow::onDeviceInfo);
+        menu.addAction(T("参数设置"), devPanel, &DevicePanel::onParamSettings);
+        menu.addAction(T("网络设置"), this, &MainWindow::onNetworkSettings);
+        menu.addAction(T("设备详情"), this, &MainWindow::onDeviceInfo);
         menu.addSeparator();
-        menu.addAction(tr("断开连接"), this, &MainWindow::onDisconnect);
+        menu.addAction(T("断开连接"), this, &MainWindow::onDisconnect);
     } else if (filePanel) {
         // 文件查看器的简化菜单
-        menu.addAction(tr("关闭文件"), this, &MainWindow::onDisconnect);
+        menu.addAction(T("关闭文件"), this, &MainWindow::onDisconnect);
     } else {
         return;
     }
@@ -368,15 +377,15 @@ void MainWindow::onToggleDeviceList()
 
 void MainWindow::onOpenFile()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, tr("打开数据文件"),
-        QDir::homePath(), tr("CSV 文件 (*.csv)"));
+    QString filePath = QFileDialog::getOpenFileName(this, T("打开数据文件"),
+        QDir::homePath(), T("CSV 文件 (*.csv)"));
     if (filePath.isEmpty()) return;
 
     // 创建文件查看器面板（虚拟设备，无采集功能）
     auto *panel = new FileViewerPanel(filePath, this);
     if (!panel->loadCsvFile(filePath)) {
         delete panel;
-        QMessageBox::warning(this, tr("错误"), tr("无法加载文件: %1").arg(filePath));
+        QMessageBox::warning(this, T("错误"), T("无法加载文件: %1").arg(filePath));
         return;
     }
 
@@ -391,7 +400,7 @@ void MainWindow::onOpenFile()
     if (displayName.length() > 12) displayName = displayName.left(10) + "..";
     listItem->setText(displayName);
     listItem->setIcon(QIcon(":/image/MSOscilloscope_icon.png"));
-    listItem->setToolTip(tr("文件: %1\n采样率: %2 Hz")
+    listItem->setToolTip(T("文件: %1\n采样率: %2 Hz")
         .arg(panel->filePath())
         .arg("--"));  // 采样率信息在 panel 内部
     listItem->setData(Qt::UserRole, stackIdx);
@@ -425,8 +434,8 @@ void MainWindow::onNetworkSettings()
     if (macChanged) {
         QRegularExpression macRegex("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$");
         if (!macRegex.match(newMac).hasMatch()) {
-            QMessageBox::warning(this, tr("格式错误"),
-                tr("MAC 地址格式不正确，应为 XX:XX:XX:XX:XX:XX\n例如: 00:1A:2B:3C:4D:5E"));
+            QMessageBox::warning(this, T("格式错误"),
+                T("MAC 地址格式不正确，应为 XX:XX:XX:XX:XX:XX\n例如: 00:1A:2B:3C:4D:5E"));
             return;
         }
     }
@@ -435,17 +444,17 @@ void MainWindow::onNetworkSettings()
     if (ipChanged) {
         QRegularExpression ipRegex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
         if (!ipRegex.match(newIp).hasMatch()) {
-            QMessageBox::warning(this, tr("格式错误"),
-                tr("IP 地址格式不正确，应为 xxx.xxx.xxx.xxx\n例如: 192.168.0.100"));
+            QMessageBox::warning(this, T("格式错误"),
+                T("IP 地址格式不正确，应为 xxx.xxx.xxx.xxx\n例如: 192.168.0.100"));
             return;
         }
     }
 
-    QString confirmMsg = tr("确认要修改以下网络参数？\n");
-    if (macChanged) confirmMsg += tr("MAC 地址: %1 → %2\n").arg(devPanel->deviceMac(), newMac);
-    if (ipChanged) confirmMsg += tr("IP 地址: %1 → %2\n").arg(devPanel->deviceIp(), newIp);
-    confirmMsg += tr("\n修改后需断电重启设备才能生效。");
-    if (QMessageBox::question(this, tr("确认修改"), confirmMsg,
+    QString confirmMsg = T("确认要修改以下网络参数？\n");
+    if (macChanged) confirmMsg += T("MAC 地址: %1 → %2\n").arg(devPanel->deviceMac(), newMac);
+    if (ipChanged) confirmMsg += T("IP 地址: %1 → %2\n").arg(devPanel->deviceIp(), newIp);
+    confirmMsg += T("\n修改后需断电重启设备才能生效。");
+    if (QMessageBox::question(this, T("确认修改"), confirmMsg,
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) return;
 
     MHANDLE hdev = devPanel->hdev();
@@ -454,22 +463,22 @@ void MainWindow::onNetworkSettings()
     if (macChanged) {
         int ret = set_device_mac(hdev, newMac.toStdString().c_str());
         if (ret <= 0) {
-            QMessageBox::warning(this, tr("错误"),
-                tr("修改 MAC 地址失败（返回 %1）。").arg(ret));
+            QMessageBox::warning(this, T("错误"),
+                T("修改 MAC 地址失败（返回 %1）。").arg(ret));
         }
     }
     if (ipChanged) {
         int ret = set_device_ip(hdev, newIp.toStdString().c_str());
         if (ret <= 0) {
-            QMessageBox::warning(this, tr("错误"),
-                tr("修改 IP 地址失败（返回 %1）。").arg(ret));
+            QMessageBox::warning(this, T("错误"),
+                T("修改 IP 地址失败（返回 %1）。").arg(ret));
         }
     }
-    QMessageBox::information(this, tr("提示"),
-        tr("MAC地址、IP地址修改成功后，要断电重启设备，新地址才能生效。"));
+    QMessageBox::information(this, T("提示"),
+        T("MAC地址、IP地址修改成功后，要断电重启设备，新地址才能生效。"));
 
-    auto ret = QMessageBox::question(this, tr("断开连接"),
-        tr("是否立即断开当前设备连接？\n断电重启后可手动重新添加设备。"),
+    auto ret = QMessageBox::question(this, T("断开连接"),
+        T("是否立即断开当前设备连接？\n断电重启后可手动重新添加设备。"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (ret == QMessageBox::Yes) {
         onDisconnect();
@@ -505,10 +514,10 @@ void MainWindow::onDeviceInfo()
 void MainWindow::onAbout()
 {
     QMessageBox msgBox(this);
-    msgBox.setWindowTitle(tr("软件信息"));
+    msgBox.setWindowTitle(T("软件信息"));
     msgBox.setTextFormat(Qt::RichText);
     msgBox.setText(
-        tr("<h2>Mstar Oscilloscope</h2>"
+        T("<h2>Mstar Oscilloscope</h2>"
            "<p>版本: V%1</p>"
            "<p>多设备示波器采集软件</p>"
            "<p>支持多设备并行采集，主从设备树形管理</p>"
@@ -538,8 +547,8 @@ void MainWindow::onDllHelp()
     }
 
     if (helpFile.isEmpty()) {
-        QMessageBox::warning(this, tr("提示"),
-            tr("未找到 DLL 接口帮助文件。\n"
+        QMessageBox::warning(this, T("提示"),
+            T("未找到 DLL 接口帮助文件。\n"
                "请确认 MStarEthernetBridge_API_Help.md 存在于程序目录中。"));
         return;
     }
@@ -547,7 +556,7 @@ void MainWindow::onDllHelp()
     // 读取 Markdown 文件并转换为 HTML
     QFile mdFile(helpFile);
     if (!mdFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("错误"), tr("无法读取帮助文件。"));
+        QMessageBox::warning(this, T("错误"), T("无法读取帮助文件。"));
         return;
     }
     QString mdContent = QString::fromUtf8(mdFile.readAll());
@@ -564,6 +573,20 @@ void MainWindow::onDllHelp()
         htmlFile.close();
         QDesktopServices::openUrl(QUrl::fromLocalFile(tempPath));
     }
+}
+
+void MainWindow::onToggleLanguage()
+{
+    auto &trans = Translation::instance();
+    QString newLang = trans.isEnglish() ? "zh" : "en";
+    trans.setLanguage(newLang);
+
+    // 更新按钮文本
+    m_btnLang->setText(trans.isEnglish() ? "中文" : "EN");
+
+    // 提示重启生效
+    QMessageBox::information(this, T("提示"),
+        T("语言已切换，部分界面需要重启后生效。"));
 }
 
 // 简易 Markdown -> HTML 转换（支持标题、表格、代码块、粗体、列表、分隔线）
