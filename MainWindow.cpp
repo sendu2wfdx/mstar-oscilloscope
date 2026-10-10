@@ -59,9 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
     topLayout->addSpacing(20);
 
     // 语言切换按钮
-    m_btnLang = new QPushButton(Translation::instance().isEnglish() ? "中文" : "EN");
+    m_btnLang = new QPushButton(Translation::instance().isEnglish() ? "中文" : "English");
     m_btnLang->setToolTip(T("切换语言 / Switch Language"));
-    m_btnLang->setFixedWidth(40);
+    m_btnLang->setFixedWidth(60);
     topLayout->addWidget(m_btnLang);
     topLayout->addStretch();
 
@@ -582,7 +582,7 @@ void MainWindow::onToggleLanguage()
     trans.setLanguage(newLang);
 
     // 更新按钮文本
-    m_btnLang->setText(trans.isEnglish() ? "中文" : "EN");
+    m_btnLang->setText(trans.isEnglish() ? "中文" : "English");
 
     // 提示重启生效
     QMessageBox::information(this, T("提示"),
