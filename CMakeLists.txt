@@ -10,7 +10,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Widgets PrintSupport LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Widgets PrintSupport)
+find_package(Qt6 QUIET COMPONENTS LinguistTools)
 
 # DLL 路径配置（开源用户需指定 MStarEthernetBridge DLL 的位置）
 # 可通过 cmake -DDLL_INCLUDE_DIR=... -DDLL_PROJECT_OUT=... 覆盖
@@ -19,13 +20,19 @@ set(DLL_PROJECT_OUT "${CMAKE_CURRENT_SOURCE_DIR}/dll/lib" CACHE PATH "Path to DL
 
 # ---- Internationalization (i18n) ----
 # 源码语言为中文，仅需英文翻译文件。中文系统直接显示源码字符串。
-# 运行 cmake --build . --target lupdate 可更新 .ts 文件
+# 需要 Qt LinguistTools 组件。若未安装，跳过翻译功能。
 set(TS_FILES
     translations/mstar_en.ts
 )
 
-# lupdate: 从源码提取可翻译字符串到 .ts 文件
-qt6_add_translation(QM_FILES ${TS_FILES})
+if(Qt6LinguistTools_FOUND)
+    # lupdate: 从源码提取可翻译字符串到 .ts 文件
+    qt6_add_translation(QM_FILES ${TS_FILES})
+    message(STATUS "LinguistTools found, i18n enabled")
+else()
+    message(STATUS "LinguistTools not found, i18n disabled (Chinese source strings used directly)")
+    set(QM_FILES "")
+endif()
 
 add_executable(MstarOscilloscope WIN32
     main.cpp
@@ -72,8 +79,10 @@ target_link_libraries(MstarOscilloscope PRIVATE
     MStarEthernetBridge
 )
 
-# Embed translations as Qt resources
-qt6_add_resources(MstarOscilloscope "translations" PREFIX "/i18n" BASE "${CMAKE_CURRENT_BINARY_DIR}" FILES ${QM_FILES})
+# Embed translations as Qt resources (only if .qm files exist)
+if(QM_FILES)
+    qt6_add_resources(MstarOscilloscope "translations" PREFIX "/i18n" BASE "${CMAKE_CURRENT_BINARY_DIR}" FILES ${QM_FILES})
+endif()
 
 # lupdate: 自定义目标，手动运行 `cmake --build . --target lupdate` 更新 .ts 文件
 find_program(LUPDATE_EXECUTABLE NAMES lupdate lupdate-qt6 HINTS "${Qt6_DIR}/../../../bin")
