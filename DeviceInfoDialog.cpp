@@ -66,7 +66,7 @@ DeviceInfoDialog::DeviceInfoDialog(QWidget *parent)
     formLayout->addRow(tr("设备 ID:"), m_editDeviceId);
 
     // 采集信息分组
-    formLayout->addRow(tr(""), new QLabel("<b>--- 采集信息 ---</b>"));
+    formLayout->addRow(tr(""), new QLabel("<b>" + tr("--- 采集信息 ---") + "</b>"));
     formLayout->addRow(tr("设备型号:"), m_labelDeviceModel);
     formLayout->addRow(tr("采集版本:"), m_labelCollectVersion);
     formLayout->addRow(tr("最高采样率:"), m_labelSampleFreq);
@@ -91,13 +91,13 @@ void DeviceInfoDialog::setDeviceInfo(const EthBridgeInfo &info)
     QStringList stateDesc;
     // AXI Full 总线状态
     QStringList axiFullDesc;
-    if (info.state & BRIDGE_INFORE_STATE_AXIFULL_WEN) axiFullDesc << "写";
-    if (info.state & BRIDGE_INFORE_STATE_AXIFULL_REN) axiFullDesc << "读";
-    if (axiFullDesc.isEmpty()) axiFullDesc << "未使能";
+    if (info.state & BRIDGE_INFORE_STATE_AXIFULL_WEN) axiFullDesc << tr("写");
+    if (info.state & BRIDGE_INFORE_STATE_AXIFULL_REN) axiFullDesc << tr("读");
+    if (axiFullDesc.isEmpty()) axiFullDesc << tr("未使能");
     int addrWidth = (info.state & BRIDGE_INFORE_STATE_AXIFULL_ADDWIDTH) ? 64 : 32;
     int datWidth = (info.state & BRIDGE_INFORE_STATE_AXIFULL_DATWIDTH)>>3;
     int dataBits[] = {32, 64, 128, 256};
-    stateDesc << QString("AXI Full 总线: %1, %2位地址, %3位数据")
+    stateDesc << tr("AXI Full 总线: %1, %2位地址, %3位数据")
                      .arg(axiFullDesc.join("/"))
                      .arg(addrWidth)
                      .arg(dataBits[datWidth]);
@@ -118,7 +118,7 @@ void DeviceInfoDialog::setDeviceInfo(const EthBridgeInfo &info)
     // 链接库更新时间：高4位月份，低12位年份（+2025）
     int month = (info.build) & 0xF;
     int year = ((info.build>>4) & 0xFFF) + 2025;
-    m_labelBuild->setText(QString("%1年%2月").arg(year).arg(month));
+    m_labelBuild->setText(tr("%1年%2月").arg(year).arg(month));
 
     //m_labelType->setText(QString::number(info.type));
     //m_labelRevision->setText(QString::number(info.revision));
@@ -132,7 +132,7 @@ void DeviceInfoDialog::setDeviceInfo(const EthBridgeInfo &info)
     case BRIDGE_ETH_SPEED_10M:   speedStr = "10 Mbps"; break;
     case BRIDGE_ETH_SPEED_100M:  speedStr = "100 Mbps"; break;
     case BRIDGE_ETH_SPEED_1000M: speedStr = "1000 Mbps"; break;
-    default:                     speedStr = "未知"; break;
+    default:                     speedStr = tr("未知"); break;
     }
     m_labelSpeed->setText(speedStr);
 
@@ -146,7 +146,7 @@ void DeviceInfoDialog::setCollectInfo(const collectinforst &info)
     m_labelSampleFreq->setText(QString("%1 Hz").arg(info.samplefreq_max));
     m_labelDataBufLen->setText(QString("%1 MB").arg(info.databuflen / (1024 * 1024)));
     m_labelChannelNum->setText(QString::number(info.nchannel));
-    m_labelAdBits->setText(QString("%1 位").arg(info.nbits));
+    m_labelAdBits->setText(tr("%1 位").arg(info.nbits));
     m_labelAdChipNum->setText(QString::number(info.nadchip));
     m_labelRangeArryNum->setText(QString::number(info.rangearry_num));
 }

@@ -43,10 +43,10 @@ void DevicePanel::initUI()
     // --- 采集控制行 ---
     auto *collectGroup = new QGroupBox("Collect");
     auto *collectLayout = new QHBoxLayout(collectGroup);
-    m_btnInstant = new QPushButton("瞬时采集");
-    m_btnSingleTrig = new QPushButton("单次触发");
-    m_btnMultiTrig = new QPushButton("连续触发");
-    m_btnContinuous = new QPushButton("连续采集");
+    m_btnInstant = new QPushButton(tr("瞬时采集"));
+    m_btnSingleTrig = new QPushButton(tr("单次触发"));
+    m_btnMultiTrig = new QPushButton(tr("连续触发"));
+    m_btnContinuous = new QPushButton(tr("连续采集"));
     m_btnStop = new QPushButton("Stop");
     m_btnStop->setEnabled(false);
     collectLayout->addWidget(m_btnInstant);
@@ -54,7 +54,7 @@ void DevicePanel::initUI()
     collectLayout->addWidget(m_btnMultiTrig);
     collectLayout->addWidget(m_btnContinuous);
     collectLayout->addWidget(m_btnStop);
-    m_btnParams = new QPushButton("参数设置");
+    m_btnParams = new QPushButton(tr("参数设置"));
     collectLayout->addWidget(m_btnParams);
     m_btnSaveData = new QPushButton(tr("保存数据"));
     m_btnSaveData->setEnabled(false);
@@ -63,7 +63,7 @@ void DevicePanel::initUI()
 
     // --- Info labels ---
     m_labelDevInfo = new QLabel;
-    m_labelStatus = new QLabel("Ready");
+    m_labelStatus = new QLabel(tr("Ready"));
     auto *infoLayout = new QHBoxLayout;
     infoLayout->addWidget(m_labelDevInfo);
     infoLayout->addStretch();
@@ -83,8 +83,8 @@ void DevicePanel::initUI()
     m_plot->yAxis->setTickLabelColor(Qt::lightGray);
     m_plot->xAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
     m_plot->yAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
-    m_plot->xAxis->setLabel("Time (s)");
-    m_plot->yAxis->setLabel("Voltage (V)");
+    m_plot->xAxis->setLabel(tr("Time (s)"));
+    m_plot->yAxis->setLabel(tr("Voltage (V)"));
     m_plot->xAxis->setLabelColor(Qt::lightGray);
     m_plot->yAxis->setLabelColor(Qt::lightGray);
     m_plot->legend->setVisible(false);
@@ -207,7 +207,7 @@ void DevicePanel::initDevice()
         spinOffset->setSingleStep(0.1);
         spinOffset->setValue(0.0);
         spinOffset->setFixedWidth(80);
-        spinOffset->setToolTip(QString("CH%1 波形偏移 (V)").arg(ch));
+        spinOffset->setToolTip(tr("CH%1 波形偏移 (V)").arg(ch));
         connect(spinOffset, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this, ch](double value) {
             m_chOffsets[ch] = value;
@@ -259,7 +259,7 @@ void DevicePanel::initDevice()
 
     // 注意：loadDeviceProfile() 在 MainWindow 设置 MAC 后调用
 
-    m_labelStatus->setText(QString("状态：空闲（%1CH %2bit %3Msps）")
+    m_labelStatus->setText(tr("状态：空闲（%1CH %2bit %3Msps）")
         .arg(m_collectInfo.nchannel)
         .arg(m_collectInfo.nbits)
         .arg(m_collectInfo.samplefreq_max / 1000000.0, 0, 'f', 2));
@@ -423,7 +423,7 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
     if (prebuflen > maxPreSamples) prebuflen = maxPreSamples;
     int ret = collect_start(m_hdev, 0, buflen, prebuflen);
     if (ret <= 0) {
-        QMessageBox::warning(this, "Error", "Collect start failed!");
+        QMessageBox::warning(this, tr("错误"), tr("Collect start failed!"));
         return;
     }
 
@@ -451,8 +451,8 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
     m_btnContinuous->setEnabled(false);
     m_btnStop->setEnabled(m_collectMode != 0);
 
-    QString modeName[] = {"瞬时采集", "单次触发", "连续触发", "连续采集"};
-    m_labelStatus->setText(QString("状态：%1 中...").arg(modeName[m_collectMode]));
+    QString modeName[] = {tr("瞬时采集"), tr("单次触发"), tr("连续触发"), tr("连续采集")};
+    m_labelStatus->setText(tr("状态：%1 中...").arg(modeName[m_collectMode]));
 
     if (m_collectMode == 3) {
         {
@@ -479,7 +479,7 @@ void DevicePanel::startCollectCommon(bool useTrig, bool loop)
                     m_fileWriter = nullptr;
                 }
                 m_saveEnabled = false;
-                m_labelStatus->setText("状态：采集继续（已放弃保存）");
+                m_labelStatus->setText(tr("状态：采集继续（已放弃保存）"));
             });
             m_fileWriter->start(m_savePath, m_filePrefix, m_sampleFreq,
                                 enabledChs.size(), enabledChs,
@@ -579,7 +579,7 @@ thread_exit:
                 m_collecting = false;
             }
             QMetaObject::invokeMethod(this, [this]() {
-                m_labelStatus->setText(QString("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
+                m_labelStatus->setText(tr("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
                 updateUI();
             }, Qt::QueuedConnection);
         });
@@ -607,7 +607,7 @@ thread_exit:
                     break;
                 }
                 QMetaObject::invokeMethod(m_labelStatus, "setText", Qt::QueuedConnection,
-                                          Q_ARG(QString, "状态：正在数据传输"));
+                                          Q_ARG(QString, tr("状态：正在数据传输")));
                 auto rawbuf = std::make_unique<uint8_t[]>(buflen);
                 int ret = axifull_read(m_hdev, 0, rawbuf.get(), buflen);
                 if (ret <= 0) {
@@ -656,7 +656,7 @@ thread_exit:
             }
             QMetaObject::invokeMethod(this, [this]() {
                 if (!m_collecting) {
-                    m_labelStatus->setText(QString("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
+                    m_labelStatus->setText(tr("状态：空闲（%1 采样点）").arg(m_plotNumSamples));
                     updateUI();
                 }
             }, Qt::QueuedConnection);
@@ -672,14 +672,14 @@ void DevicePanel::onPlotReady()
         if (m_plotNumSamples == -1) {
             m_trigLine->setVisible(false);
             m_plot->replot();
-            m_labelStatus->setText("状态：空闲（DMA 超时）");
+            m_labelStatus->setText(tr("状态：空闲（DMA 超时）"));
             updateUI();
             return;
         }
         if (m_plotNumSamples == -2) {
             m_trigLine->setVisible(false);
             m_plot->replot();
-            m_labelStatus->setText("状态：空闲（读取失败）");
+            m_labelStatus->setText(tr("状态：空闲（读取失败）"));
             updateUI();
             return;
         }
@@ -701,7 +701,7 @@ void DevicePanel::onPlotReady()
         stillCollecting = m_collecting;
     }
     if (!stillCollecting) {
-        m_labelStatus->setText(QString("状态：空闲（%1 采样点）").arg(numSamples));
+        m_labelStatus->setText(tr("状态：空闲（%1 采样点）").arg(numSamples));
         updateUI();
         if (m_saveEnabled && m_collectMode == 3) autoSaveData();
     }

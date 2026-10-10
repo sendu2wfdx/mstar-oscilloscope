@@ -34,8 +34,8 @@ void FileViewerPanel::initUI()
 
     // --- 文件信息行 ---
     auto *infoLayout = new QHBoxLayout;
-    m_labelFileInfo = new QLabel("文件: " + m_fileName);
-    m_labelSampleRate = new QLabel("采样率: --");
+    m_labelFileInfo = new QLabel(tr("文件: ") + m_fileName);
+    m_labelSampleRate = new QLabel(tr("采样率: --"));
     infoLayout->addWidget(m_labelFileInfo);
     infoLayout->addStretch();
     infoLayout->addWidget(m_labelSampleRate);
@@ -54,8 +54,8 @@ void FileViewerPanel::initUI()
     m_plot->yAxis->setTickLabelColor(Qt::lightGray);
     m_plot->xAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
     m_plot->yAxis->grid()->setPen(QPen(QColor(40, 40, 40)));
-    m_plot->xAxis->setLabel("Time (s)");
-    m_plot->yAxis->setLabel("Voltage (V)");
+    m_plot->xAxis->setLabel(tr("Time (s)"));
+    m_plot->yAxis->setLabel(tr("Voltage (V)"));
     m_plot->xAxis->setLabelColor(Qt::lightGray);
     m_plot->yAxis->setLabelColor(Qt::lightGray);
     m_plot->legend->setVisible(false);
@@ -107,7 +107,7 @@ bool FileViewerPanel::loadCsvFile(const QString &filePath)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        m_labelFileInfo->setText("错误: 无法打开文件");
+        m_labelFileInfo->setText(tr("错误: 无法打开文件"));
         return false;
     }
 
@@ -219,12 +219,12 @@ bool FileViewerPanel::loadCsvFile(const QString &filePath)
 
     // 检查是否成功加载数据
     if (m_channelCount <= 0 || m_channelData.isEmpty()) {
-        m_labelFileInfo->setText("错误: 文件中没有有效数据");
+        m_labelFileInfo->setText(tr("错误: 文件中没有有效数据"));
         return false;
     }
 
     // 更新 UI
-    m_labelSampleRate->setText(QString("采样率: %1 Hz").arg(m_sampleRate, 0, 'f', 0));
+    m_labelSampleRate->setText(tr("采样率: %1 Hz").arg(m_sampleRate, 0, 'f', 0));
 
     // 初始化通道偏移
     m_chOffsets.resize(m_channelCount, 0.0);
@@ -282,7 +282,7 @@ bool FileViewerPanel::loadCsvFile(const QString &filePath)
         spinOffset->setSingleStep(0.1);
         spinOffset->setValue(0.0);
         spinOffset->setFixedWidth(80);
-        spinOffset->setToolTip(QString("CH%1 波形偏移 (V)").arg(ch));
+        spinOffset->setToolTip(tr("CH%1 波形偏移 (V)").arg(ch));
         connect(spinOffset, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 this, [this, ch](double value) {
             m_chOffsets[ch] = value;

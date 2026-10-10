@@ -13,13 +13,13 @@
 ConnectDialog::ConnectDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle("Connect Device");
+    setWindowTitle(tr("Connect Device"));
     setMinimumWidth(380);
 
     auto *layout = new QVBoxLayout(this);
 
     // --- IP input ---
-    auto *ipGroup = new QGroupBox("Device IP");
+    auto *ipGroup = new QGroupBox(tr("Device IP"));
     auto *ipLayout = new QHBoxLayout(ipGroup);
     m_editIp = new QLineEdit("192.168.0.100");
     ipLayout->addWidget(new QLabel("IP:"));
@@ -27,10 +27,10 @@ ConnectDialog::ConnectDialog(QWidget *parent)
     layout->addWidget(ipGroup);
 
     // --- Scan ---
-    auto *scanGroup = new QGroupBox("Auto Scan");
+    auto *scanGroup = new QGroupBox(tr("Auto Scan"));
     auto *scanLayout = new QVBoxLayout(scanGroup);
     auto *btnLayout = new QHBoxLayout;
-    m_btnScan = new QPushButton("Scan Devices");
+    m_btnScan = new QPushButton(tr("Scan Devices"));
     btnLayout->addWidget(m_btnScan);
     btnLayout->addStretch();
     scanLayout->addLayout(btnLayout);
@@ -42,8 +42,8 @@ ConnectDialog::ConnectDialog(QWidget *parent)
 
     // --- OK / Cancel ---
     auto *btnBox = new QHBoxLayout;
-    auto *btnOk = new QPushButton("Connect");
-    auto *btnCancel = new QPushButton("Cancel");
+    auto *btnOk = new QPushButton(tr("Connect"));
+    auto *btnCancel = new QPushButton(tr("Cancel"));
     btnBox->addStretch();
     btnBox->addWidget(btnOk);
     btnBox->addWidget(btnCancel);
@@ -79,7 +79,7 @@ void ConnectDialog::onScan()
         int count = get_udpclient_size();
 
         if (count <= 0) {
-            m_listDevices->addItem("No device found");
+            m_listDevices->addItem(tr("No device found"));
             m_btnScan->setEnabled(true);
             return;
         }
@@ -100,7 +100,7 @@ void ConnectDialog::onScan()
         }
 
         if (m_listDevices->count() == 0) {
-            m_listDevices->addItem("No new device found (all connected)");
+            m_listDevices->addItem(tr("No new device found (all connected)"));
         }
 
         m_btnScan->setEnabled(true);
@@ -119,7 +119,7 @@ void ConnectDialog::accept()
 {
     QString ip = m_editIp->text().trimmed();
     if (ip.isEmpty()) {
-        QMessageBox::warning(this, "Error", "Please enter device IP address!");
+        QMessageBox::warning(this, tr("Error"), tr("Please enter device IP address!"));
         return;
     }
     // 检查是否已连接

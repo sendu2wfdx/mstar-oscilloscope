@@ -138,13 +138,13 @@ void MainWindow::onAddDevice()
     std::string ipStr = ip.toStdString();
     int ret = mstar_ethbridge_open(ipStr.c_str());
     if (ret <= 0) {
-        QMessageBox::warning(this, "Error", "Open bridge failed!");
+        QMessageBox::warning(this, tr("错误"), tr("Open bridge failed!"));
         return;
     }
 
     MHANDLE hdev = get_device_ip(ipStr.c_str());
     if (!hdev) {
-        QMessageBox::warning(this, "Error", "No device found!");
+        QMessageBox::warning(this, tr("错误"), tr("No device found!"));
         return;
     }
 
@@ -154,7 +154,7 @@ void MainWindow::onAddDevice()
 
     int ret2 = collect_device_init(hdev);
     if (ret2 <= 0) {
-        QMessageBox::warning(this, "Error", "Device init failed!");
+        QMessageBox::warning(this, tr("错误"), tr("Device init failed!"));
         device_handle_release(hdev);
         return;
     }
@@ -173,7 +173,7 @@ void MainWindow::onAddDevice()
     collectinforst info;
     ret2 = get_collect_information(hdev, &info);
     if (ret2 <= 0) {
-        QMessageBox::warning(this, "Error", "Get collect info failed!");
+        QMessageBox::warning(this, tr("错误"), tr("Get collect info failed!"));
         device_handle_release(hdev);
         return;
     }
@@ -202,11 +202,11 @@ void MainWindow::onAddDevice()
     if (!signatureValid) displayName += tr("\n(未验证)");
     listItem->setText(displayName);
     listItem->setIcon(QIcon(":/image/MScollect_icon.png"));
-    listItem->setToolTip(QString("型号: %1\nIP: %2\nMAC: %3\n主/从: %4\n签名: %5")
+    listItem->setToolTip(tr("型号: %1\nIP: %2\nMAC: %3\n主/从: %4\n签名: %5")
         .arg(panel->deviceModel())
         .arg(devinfo.ip)
         .arg(devinfo.mac)
-        .arg(panel->masterIp().isEmpty() ? "主设备" : "从设备")
+        .arg(panel->masterIp().isEmpty() ? tr("主设备") : tr("从设备"))
         .arg(signatureValid ? tr("已验证") : tr("未验证")));
     listItem->setData(Qt::UserRole, stackIdx);
     m_deviceList->addItem(listItem);
@@ -391,7 +391,7 @@ void MainWindow::onOpenFile()
     if (displayName.length() > 12) displayName = displayName.left(10) + "..";
     listItem->setText(displayName);
     listItem->setIcon(QIcon(":/image/MSOscilloscope_icon.png"));
-    listItem->setToolTip(QString("文件: %1\n采样率: %2 Hz")
+    listItem->setToolTip(tr("文件: %1\n采样率: %2 Hz")
         .arg(panel->filePath())
         .arg("--"));  // 采样率信息在 panel 内部
     listItem->setData(Qt::UserRole, stackIdx);

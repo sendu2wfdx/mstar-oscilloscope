@@ -434,21 +434,21 @@ void CollectParamDialog::initFromDevice(MHANDLE hdev, const collectinforst &info
     // 填充量程选项并读取当前量程
     if (hdev && info.nchannel > 0) {
         // 量程码 → 显示名称
-        auto rangeName = [](uint8_t code) -> QString {
+        auto rangeName = [this](uint8_t code) -> QString {
             switch (code) {
-                case AD_AIN_RANGE_SPN2V5:  return "\u00b12.5V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SPN5V:   return "\u00b15V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SPN6V25: return "\u00b16.25V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SPN10V:  return "\u00b110V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SPN12V5: return "\u00b112.5V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SP5V:    return "0~5V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SP10V:   return "0~10V(\u5355\u7aef)";
-                case AD_AIN_RANGE_SP12V5:  return "0~12.5V(\u5355\u7aef)";
-                case AD_AIN_RANGE_D5V:     return "\u00b15V(\u5dee\u5206)";
-                case AD_AIN_RANGE_D10V:    return "\u00b110V(\u5dee\u5206)";
-                case AD_AIN_RANGE_D12V5:   return "\u00b112.5V(\u5dee\u5206)";
-                case AD_AIN_RANGE_D20V:    return "\u00b120V(\u5dee\u5206)";
-                case AD_AIN_RANGE_D25V:    return "\u00b125V(\u5dee\u5206)";
+                case AD_AIN_RANGE_SPN2V5:  return tr("\u00b12.5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN5V:   return tr("\u00b15V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN6V25: return tr("\u00b16.25V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN10V:  return tr("\u00b110V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SPN12V5: return tr("\u00b112.5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SP5V:    return tr("0~5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SP10V:   return tr("0~10V(\u5355\u7aef)");
+                case AD_AIN_RANGE_SP12V5:  return tr("0~12.5V(\u5355\u7aef)");
+                case AD_AIN_RANGE_D5V:     return tr("\u00b15V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D10V:    return tr("\u00b110V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D12V5:   return tr("\u00b112.5V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D20V:    return tr("\u00b120V(\u5dee\u5206)");
+                case AD_AIN_RANGE_D25V:    return tr("\u00b125V(\u5dee\u5206)");
                 default: return QString("0x%1").arg(code, 2, 16, QChar('0'));
             }
         };
